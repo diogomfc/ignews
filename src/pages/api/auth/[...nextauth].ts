@@ -20,51 +20,51 @@ export default NextAuth({
     // ...add more providers here
   ],
   
+ callbacks: {
+     async signIn({ user, account, profile, credentials }) {
+       //console.log(profile);
 
-  callbacks: {
-    async signIn({ user, account, profile, credentials }) {
-     // console.log(profile);
+       const { email } = user
 
-      const { email } = user
-
-      // //inserir no banco de dados faunadb
-      try{
-        await faunaClient.query(
-          q.If(
-            q.Not(
-              q.Exists(
-                q.Match(
-                  q.Index('user_by_email'),
-                  q.Casefold(user.email)
-                )
-              )
-            ),
-            q.Create(
-              q.Collection('users'),
-              {
-                data: {
-                  email,
-                  name: profile.name,
-                  avatar: profile.avatar_url,
-                },
-              }
-            ),
-            q.Get(
-              q.Match(
-                q.Index('user_by_email'),
-                q.Casefold(user.email)
-              )
-            )
-          )
-        )
-        return true
-      } catch {
-        return false
-      }
+        //inserir no banco de dados faunadb
+       try{
+         await faunaClient.query(
+           q.If(
+             q.Not(
+               q.Exists(
+                 q.Match(
+                   q.Index('user_by_email'),
+                   q.Casefold(user.email)
+                 )
+               )
+             ),
+             q.Create(
+               q.Collection('users'),
+               {
+                 data: {
+                   email,
+                   name: profile.name,
+                   avatar: profile.image,
+                 },
+               }
+             ),
+             q.Get(
+               q.Match(
+                 q.Index('user_by_email'),
+                 q.Casefold(user.email)
+               )
+             )
+           )
+         )
+         return true
+       } catch {
+         return false
+       }
 
 
-    },
-  },
+     },
+   },
+  
 })
 
 
